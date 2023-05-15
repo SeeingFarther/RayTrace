@@ -4,7 +4,13 @@ import math
 from PIL import Image
 import time
 import re
-from Objects import *
+from Camera import *
+from Set import *
+from Plane import *
+from Box import *
+from Sphere import *
+from Material import *
+from Light import *
 from Utilities import *
 
 
