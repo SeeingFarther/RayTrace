@@ -12,6 +12,7 @@ from Sphere import *
 from Material import *
 from Light import *
 from Utilities import *
+from Ray import *
 
 
 class RayTracer:
@@ -21,7 +22,7 @@ class RayTracer:
         self.image_height = height
         self.camera = None
         self.set = None
-        self.rays = []
+        self.rays_directions = []
         self.surfaces = []
         self.materials = []
         self.lights = []
@@ -180,15 +181,16 @@ class RayTracer:
 
                 # Find intersection with each surfaces
                 for i, surface in enumerate(self.surfaces):
-                    t_temp = surface[1].intersect(P_0, self.rays[row, col])
-                    if t_temp > 0 and t > (t_temp or t == -1):
+                    t_temp = surface[1].intersect(P_0, self.rays_directions[row, col])
+                    if t_temp > 0 and (t > t_temp or t == -1):
                         t = t_temp
-                        index = i
+                        index = surface[1].material - 1
 
                 if index >= 0:
                     color = self.materials[index].diffuse_color
-
-                rgb_data[row, col, :] = color[:]
+                    # ray = Ray(self.camera.position, self.rays_directions[i, j], t, index)
+                    # color = calculateColor(ray, self.lights, self.materials)
+                    rgb_data[row, col, :] = (color[:] * 255)
 
         # Save the image to file
         img = Image.fromarray(rgb_data, 'RGB')
@@ -214,7 +216,6 @@ if __name__ == "__main__":
     #     tracer.setHeight(int(sys.argv[4]))
     scene_file_path = './Pool.txt'
     tracer.parseScene(scene_file_path)
-    P = findPixelCordinates(tracer.camera, tracer.image_width, tracer.image_height)
-    tracer.rays = findRays(P, tracer.camera)
+    tracer.rays_directions = findPixelRays(tracer.camera, tracer.image_width, tracer.image_height)
     tracer.renderScene('test.png')
     print("helllssssssssssssssss")

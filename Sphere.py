@@ -6,7 +6,7 @@ class Sphere:
         self.radius = radius
         self.material = material
 
-    # Calculate intersection between the ray and the sphere using geometric method
+    #Calculate intersection between the ray and the sphere using geometric method
     def intersect(self, P_0, V):
         # Calculate L and T_ca
         L = self.center - P_0
@@ -34,4 +34,5 @@ class Sphere:
         if t1 < 0:
             t1 = t2
         return t1
+
 
