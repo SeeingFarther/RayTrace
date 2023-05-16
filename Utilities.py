@@ -27,10 +27,9 @@ def findPixelRays(camera, R_x, R_y):
     j_matrix = np.tile(np.arange(R_y), (R_x, 1))
     x = r_x * (j_matrix - np.floor(R_x / 2))
     y = r_y * (i_matrix - np.floor(R_y / 2))
-    plane_V_up[2] = 0
-    V_right[2] = 0
     P = P_c + (x.reshape(-1, 1) * V_right) - (y.reshape(-1, 1) * plane_V_up)
     P = P.reshape(R_x, R_y, 3)
+
 
     # Calculate the subtraction of each vector in the matrix with P_0
     P_sub = P - P_0
