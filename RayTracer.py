@@ -28,11 +28,60 @@ class RayTracer:
         self.lights = []
         self.objects = []
 
+    # Get and set functions
+    def getWidth(self):
+        return self.image_width
+
+    def getHeight(self):
+        return self.image_height
+
+    def getCamera(self):
+        return self.camera
+
+    def getSet(self):
+        return self.set
+
+    def getRaysDirections(self):
+        return self.rays_directions
+
+    def getSurfaces(self):
+        return self.surfaces
+
+    def getMaterials(self):
+        return self.materials
+
+    def getLights(self):
+        return self.lights
+
+    def getObjects(self):
+        return self.objects
+
     def setWidth(self, width):
         self.image_width = width
 
     def setHeight(self, height):
-        self.image_width = height
+        self.image_height = height
+
+    def setCamera(self, camera):
+        self.camera = camera
+
+    def setSet(self, set):
+        self.set = set
+
+    def setRaysDirections(self, rays_directions):
+        self.rays_directions = rays_directions
+
+    def setSurfaces(self, surfaces):
+        self.surfaces = surfaces
+
+    def setMaterials(self, materials):
+        self.materials = materials
+
+    def setLights(self, lights):
+        self.lights = lights
+
+    def setObjects(self, objects):
+        self.objects = objects
 
     def parseScene(self, scene_file_path):
         with open(scene_file_path) as f:
@@ -172,24 +221,24 @@ class RayTracer:
         rgb_data = np.zeros((self.image_height, self.image_width, 3), dtype=np.uint8)
 
         # Find for each pixel is color
-        P_0 = self.camera.position
+        P_0 = self.camera.getPosition()
         for row in range(self.image_height):
             for col in range(self.image_width):
                 t = -1
                 index = -1
-                color = self.set.background_color
+                color = self.set.getBackgroundColor()
 
                 # Find intersection with each surfaces
                 for i, surface in enumerate(self.surfaces):
                     t_temp = surface[1].intersect(P_0, self.rays_directions[row, col])
                     if t_temp > 0 and (t > t_temp or t == -1):
                         t = t_temp
-                        index = surface[1].material - 1
+                        index = surface[1].getMaterial() - 1
 
                 if index >= 0:
-                    color = self.materials[index].diffuse_color
-                    # ray = Ray(self.camera.position, self.rays_directions[i, j], t, index)
-                    # color = calculateColor(ray, self.lights, self.materials[index], self.set.background_color)
+                    color = self.materials[index].getDiffuseColor()
+                    # ray = Ray(self.camera.getPosition, self.rays_directions[i, j], t, index)
+                    # color = calculateColor(ray, self.lights, self.materials[index], self.set.getBackgroundColor())
                     rgb_data[row, col, :] = (color[:] * 255)
 
         # Save the image to file
@@ -216,6 +265,6 @@ if __name__ == "__main__":
     #     tracer.setHeight(int(sys.argv[4]))
     scene_file_path = './Pool.txt'
     tracer.parseScene(scene_file_path)
-    tracer.rays_directions = findPixelRays(tracer.camera, tracer.image_width, tracer.image_height)
+    tracer.setRaysDirections(findPixelRays(tracer.camera, tracer.image_width, tracer.image_height))
     tracer.renderScene('test.png')
     print("helllssssssssssssssss")

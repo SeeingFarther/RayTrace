@@ -7,6 +7,25 @@ class Sphere:
         self.radius = radius
         self.material = material
 
+    # Get and set functions
+    def getCenter(self):
+        return self.center
+
+    def getRadius(self):
+        return self.radius
+
+    def getMaterial(self):
+        return self.material
+
+    def setCenter(self, center):
+        self.center = center
+
+    def setRadius(self, radius):
+        self.radius = radius
+
+    def setMaterial(self, material):
+        self.material = material
+
     # Calculate intersection between the ray and the sphere using geometric method
     def intersect(self, P_0, V):
         # Calculate L and T_ca
