@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class Plane:
     def __init__(self, normal, offset, material):
         self.normal = normal
@@ -12,3 +13,6 @@ class Plane:
         prod = P_0.dot(self.normal) + self.offset
         t = -prod / div
         return t
+
+    def getNormal(self):
+        return self.normal

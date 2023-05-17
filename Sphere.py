@@ -1,12 +1,13 @@
 import numpy as np
 
+
 class Sphere:
     def __init__(self, center, radius, material):
         self.center = center
         self.radius = radius
         self.material = material
 
-    #Calculate intersection between the ray and the sphere using geometric method
+    # Calculate intersection between the ray and the sphere using geometric method
     def intersect(self, P_0, V):
         # Calculate L and T_ca
         L = self.center - P_0
@@ -35,4 +36,6 @@ class Sphere:
             t1 = t2
         return t1
 
-
+    # Gives the normal of point on the sphere
+    def getNormal(self, V):
+        return V - self.center

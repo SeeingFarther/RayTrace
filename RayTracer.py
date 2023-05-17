@@ -189,7 +189,7 @@ class RayTracer:
                 if index >= 0:
                     color = self.materials[index].diffuse_color
                     # ray = Ray(self.camera.position, self.rays_directions[i, j], t, index)
-                    # color = calculateColor(ray, self.lights, self.materials)
+                    # color = calculateColor(ray, self.lights, self.materials[index])
                     rgb_data[row, col, :] = (color[:] * 255)
 
         # Save the image to file

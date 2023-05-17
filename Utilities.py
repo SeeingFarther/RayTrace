@@ -43,5 +43,27 @@ def findPixelRays(camera, R_x, R_y):
     return P_normalized
 
 
-def calculateColor(ray, lights, materials):
+def calculateColor(ray, lights, material, surface):
+    # color = np.zeros((3, 1), dtype=np.float64)
+    #
+    # # Get normal
+    # N = surface.getNormal()
+    # N = N / np.linalg.norm(N)
+    #
+    # # Calculate color as using phong method
+    # for light in lights:
+    #     L = light.position - ray.intersection_point
+    #     L = L / np.linalg.norm(L)
+    #
+    #     # Calculate diffuse color part
+    #     dot = np.prod(N, L)
+    #     if dot < 0:
+    #         continue
+    #     color = light.lightColor * dot * material.diffuse_color
+    #
+    #     # Calculate specular part
+    #     # R - Reflected ray
+    #     R = N * (np.dot((L * 2), N)) - L
+    #     diffuse = np.dot(R, ray.direction)
+    #     diffuse = np.pow(diffuse, material.phong_specularity)
     pass
