@@ -1,7 +1,9 @@
+import numpy as np
+
 class Ray:
     def __init__(self, p, direction, intersection_point=-1, intersection_surface_index=-1):
         self.p = p
-        self.direction = direction
+        self.direction = direction / np.linalg.norm(direction)
         self.intersection_point = intersection_point
         self.intersection_surface_index = intersection_surface_index
 

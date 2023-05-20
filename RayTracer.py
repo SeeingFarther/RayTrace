@@ -120,8 +120,8 @@ class RayTracer:
                 object_params = {
                     'background_color': np.array([float(params[0]), float(params[1]), float(params[2])],
                                                  dtype=np.float64),
-                    'shadow_rays': float(params[3]),
-                    'max_recursions': float(params[4])
+                    'shadow_rays': int(params[3]),
+                    'max_recursions': int(params[4])
                 }
 
                 # Create set
@@ -224,22 +224,16 @@ class RayTracer:
         P_0 = self.camera.getPosition()
         for row in range(self.image_height):
             for col in range(self.image_width):
-                t = -1
-                index = -1
                 color = self.set.getBackgroundColor()
 
                 # Find intersection with each surfaces
-                for i, surface in enumerate(self.surfaces):
-                    t_temp = surface[1].intersect(P_0, self.rays_directions[row, col])
-                    if t_temp > 0 and (t > t_temp or t == -1):
-                        t = t_temp
-                        index = surface[1].getMaterial() - 1
+                t, surface = find_intersection(P_0, self.rays_directions[row, col], self.surfaces)
 
-                if index >= 0:
-                    color = self.materials[index].getDiffuseColor()
-                    # ray = Ray(self.camera.getPosition, self.rays_directions[i, j], t, index)
-                    # color = calculateColor(ray, self.lights, self.materials[index], self.set.getBackgroundColor())
-                    rgb_data[row, col, :] = (color[:] * 255)
+                if t is not None:
+                    material_index = surface[1].getMaterial() - 1
+                    ray = Ray(self.camera.getPosition(), self.rays_directions[row, col], self.camera.getPosition() + t * self.rays_directions[row, col], material_index)
+                    color = calculateColor(ray, self.set, self.surfaces, self.materials, self.lights, self.materials[material_index], surface[1], self.set.getBackgroundColor(), self.set.getMaxRecursions())
+                rgb_data[row, col, :] = (color[:] * 255)
 
         # Save the image to file
         img = Image.fromarray(rgb_data, 'RGB')

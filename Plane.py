@@ -35,5 +35,5 @@ class Plane:
 
     # Find vector projection on plane
     def findProjection(self, vector):
-        projection = vector - self.normal * vector.dot(self.normal)
-        return projection
+        proj = vector - np.dot(vector, self.normal) * self.normal
+        return proj
