@@ -2,7 +2,7 @@ import numpy as np
 
 
 class Sphere:
-    def __init__(self, center, radius, material):
+    def __init__(self, center, radius, material=None):
         self.center = center
         self.radius = radius
         self.material = material
@@ -26,11 +26,11 @@ class Sphere:
     def setMaterial(self, material):
         self.material = material
 
-    # Calculate intersection between the ray and the sphere using geometric method
-    def intersect(self, P_0, V):
+    # Calculate intersection between the ray and the sphere using geometric method we learnt in the lecture
+    def findIntersection(self, P_0, V):
         # Calculate L and T_ca
         L = self.center - P_0
-        T_ca = L.dot(V)
+        T_ca = np.dot(L, V)
         if T_ca < 0:
             return 0
 
@@ -56,5 +56,7 @@ class Sphere:
         return t1
 
     # Gives the normal of point on the sphere
-    def getNormal(self, V):
-        return V - self.center
+    def getNormal(self, ray):
+        V = ray.getIntersectionPoint()
+        normal = V - self.center
+        return normal / np.linalg.norm(normal)

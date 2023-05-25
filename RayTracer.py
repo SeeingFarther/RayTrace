@@ -1,6 +1,5 @@
 import numpy as np
 import sys
-import math
 from PIL import Image
 import time
 import re
@@ -13,6 +12,8 @@ from Material import *
 from Light import *
 from Utilities import *
 from Ray import *
+from ColorFinder import *
+from ColorThread import *
 
 
 class RayTracer:
@@ -22,11 +23,13 @@ class RayTracer:
         self.image_height = height
         self.camera = None
         self.set = None
-        self.rays_directions = []
+        self.pixels = None
+        self.rays_directions = None
         self.surfaces = []
         self.materials = []
         self.lights = []
         self.objects = []
+        self.threads = []
 
     # Get and set functions
     def getWidth(self):
@@ -40,6 +43,9 @@ class RayTracer:
 
     def getSet(self):
         return self.set
+
+    def getPixels(self):
+        return self.pixels
 
     def getRaysDirections(self):
         return self.rays_directions
@@ -67,6 +73,9 @@ class RayTracer:
 
     def setSet(self, set):
         self.set = set
+
+    def setPixels(self, pixels):
+        self.pixels = pixels
 
     def setRaysDirections(self, rays_directions):
         self.rays_directions = rays_directions
@@ -104,7 +113,7 @@ class RayTracer:
                     'up_vector': np.array([float(params[6]), float(params[7]), float(params[8])], dtype=np.float64),
                     'screen_distance': float(params[9]),
                     'screen_width': float(params[10]),
-                    'use_fisheye': params[11] == 'true',
+                    'use_fisheye': params[11] == 'true' if len(params) > 11 else False,
                     'fisheye_k': float(params[12]) if len(params) > 12 else 0.5
                 }
 
@@ -221,19 +230,48 @@ class RayTracer:
         rgb_data = np.zeros((self.image_height, self.image_width, 3), dtype=np.uint8)
 
         # Find for each pixel is color
+        use_fisheye = self.camera.getUseFisheye()
         P_0 = self.camera.getPosition()
-        for row in range(self.image_height):
-            for col in range(self.image_width):
+        P_c = self.pixels[int(np.floor(self.image_height / 2)), int(np.floor(self.image_width / 2))]
+        for col in range(self.image_width):
+            for row in range(self.image_height):
+
+                # Default color if no intersection
                 color = self.set.getBackgroundColor()
+                rgb_data[row, col, :] = (color[:] * 255)
+
+                # Get color
+                direction = self.rays_directions[row, col]
+
+                # Fisheye camera?
+                if use_fisheye:
+                    direction = calculateFishEyeRay(self.camera, self.pixels[row, col], P_c)
+                    if direction is None:
+                        continue
 
                 # Find intersection with each surfaces
-                t, surface = find_intersection(P_0, self.rays_directions[row, col], self.surfaces)
+                direction = direction / np.linalg.norm(direction)
+                t, surface = findIntersection(P_0, direction, self.surfaces)
 
                 if t is not None:
+
+                    # Set thread for color calculating
                     material_index = surface[1].getMaterial() - 1
-                    ray = Ray(self.camera.getPosition(), self.rays_directions[row, col], self.camera.getPosition() + t * self.rays_directions[row, col], material_index)
-                    color = calculateColor(ray, self.set, self.surfaces, self.materials, self.lights, self.materials[material_index], surface[1], self.set.getBackgroundColor(), self.set.getMaxRecursions())
-                rgb_data[row, col, :] = (color[:] * 255)
+                    ray = Ray(self.camera.getPosition(), self.rays_directions[row, col], self.camera.getPosition() + t * direction, material_index)
+                    color_finder = ColorFinder(self.set, self.lights, self.surfaces, self.materials, self.set.getBackgroundColor())
+                    thread = ColorThread(ray, row, col, rgb_data, color_finder, self.materials[material_index], surface[1], self.set.getMaxRecursions())
+
+                    # Run thread
+                    thread.start()
+                    self.threads.append(thread)
+
+                # To many threads? Wait until all threads finish
+                if len(self.threads) > 30:
+                    for thread in self.threads:
+                        thread.join()
+
+                    # Empty threads
+                    self.threads = []
 
         # Save the image to file
         img = Image.fromarray(rgb_data, 'RGB')
@@ -257,8 +295,10 @@ if __name__ == "__main__":
     #
     # if len(sys.argv) > 4:
     #     tracer.setHeight(int(sys.argv[4]))
-    scene_file_path = './Pool.txt'
+    scene_file_path = './Pool_box.txt'
     tracer.parseScene(scene_file_path)
-    tracer.setRaysDirections(findPixelRays(tracer.camera, tracer.image_width, tracer.image_height))
-    tracer.renderScene('test.png')
+    pixels, rays = findPixelRays(tracer.camera, tracer.image_width, tracer.image_height)
+    tracer.setPixels(pixels)
+    tracer.setRaysDirections(rays)
+    tracer.renderScene('test7.png')
     print("helllssssssssssssssss")

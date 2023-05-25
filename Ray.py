@@ -1,33 +1,34 @@
 import numpy as np
 
+
 class Ray:
-    def __init__(self, p, direction, intersection_point=-1, intersection_surface_index=-1):
+    def __init__(self, p, ray_direction, intersection_point, intersection_surface_material_index=None):
         self.p = p
-        self.direction = direction / np.linalg.norm(direction)
+        self.ray_direction = ray_direction / np.linalg.norm(ray_direction)
         self.intersection_point = intersection_point
-        self.intersection_surface_index = intersection_surface_index
+        self.intersection_surface_material_index = intersection_surface_material_index
 
     # Get and set functions
     def getP(self):
         return self.p
 
     def getDirection(self):
-        return self.direction
+        return self.ray_direction
 
     def getIntersectionPoint(self):
         return self.intersection_point
 
-    def getIntersectionSurfaceIndex(self):
-        return self.intersection_surface_index
+    def getIntersectionSurfaceMaterialIndex(self):
+        return self.intersection_surface_material_index
 
     def setP(self, p):
         self.p = p
 
-    def setDirection(self, direction):
-        self.direction = direction
+    def setDirection(self, ray_direction):
+        self.ray_direction = ray_direction
 
     def setIntersectionPoint(self, intersection_point):
         self.intersection_point = intersection_point
 
-    def setIntersectionSurfaceIndex(self, intersection_surface_index):
-        self.intersection_surface_index = intersection_surface_index
+    def setIntersectionSurfaceMaterialIndex(self, intersection_surface_material_index):
+        self.intersection_surface_material_index = intersection_surface_material_index

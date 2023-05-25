@@ -2,9 +2,9 @@ import numpy as np
 
 
 class Plane:
-    def __init__(self, normal, offset, material):
+    def __init__(self, normal, offset, material=None):
         self.normal = normal
-        self.offset = offset
+        self.offset = -offset
         self.material = material
 
     # Get and set functions
@@ -21,19 +21,21 @@ class Plane:
         self.normal = normal
 
     def setOffset(self, offset):
-        self.offset = offset
+        self.offset = -offset
 
     def setMaterial(self, material):
         self.material = material
 
     # Calculate intersection between the ray and the plane using algebraic method
-    def intersect(self, P_0, vector):
-        div = vector.dot(self.normal)
-        prod = P_0.dot(self.normal) + self.offset
+    def findIntersection(self, P_0, vector):
+        div = np.dot(vector, self.normal)
+        prod = np.dot(self.normal, P_0) + self.offset
+        if div == 0:
+            return np.inf * -prod
+
         t = -prod / div
         return t
 
-    # Find vector projection on plane
-    def findProjection(self, vector):
-        proj = vector - np.dot(vector, self.normal) * self.normal
-        return proj
+    # Get and set functions
+    def getNormal(self, ray=None):
+        return self.normal
