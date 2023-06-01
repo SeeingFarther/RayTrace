@@ -1,15 +1,15 @@
 import numpy as np
 import random
-from Plane import *
-from Box import *
-from Sphere import *
-from Ray import *
+from surfaces.cube import Cube
+from surfaces.infinite_plane import InfinitePlane
+from surfaces.sphere import Sphere
+from ray import *
 
 
 # Finds pixel to ray mapping using what we learnt in the lecture
 def findPixelRays(camera, R_x, R_y):
     # Look direction vector
-    V_to = camera.getLookTo() - camera.getPosition()
+    V_to = camera.getLookAt() - camera.getPosition()
     V_to = V_to / np.linalg.norm(V_to)
 
     # View up vector
@@ -38,7 +38,7 @@ def findPixelRays(camera, R_x, R_y):
     j_matrix = np.tile(np.arange(R_y), (R_x, 1))
     x = r_x * (j_matrix - np.floor(R_x / 2))
     y = r_y * (i_matrix - np.floor(R_y / 2))
-    P = P_c + (x.reshape(-1, 1) * V_right) - (y.reshape(-1, 1) * plane_V_up)
+    P = P_c - (x.reshape(-1, 1) * V_right) - (y.reshape(-1, 1) * plane_V_up)
     P = P.reshape(R_x, R_y, 3)
 
     # Calculate the subtraction of each vector in the matrix with P_0
@@ -60,7 +60,7 @@ def findIntersection(base_point, ray_direction, surfaces):
 
     # Look for intersection with surface
     for surface in surfaces:
-        t = surface[1].findIntersection(base_point, ray_direction)
+        t = surface.findIntersection(base_point, ray_direction)
         # Found closer intersection point?
         if 0 < t < intersect_t:
             intersect_t = t
@@ -73,36 +73,26 @@ def findIntersection(base_point, ray_direction, surfaces):
     return intersect_t, intersect_surface
 
 
-# Calculates the direction of a ray in a fisheye camera in reverse way
-def calculateFishEyeRay(camera, P, P_c):
-    # Get parameters of sensor plane for theta calculating
-    R = np.linalg.norm(P - P_c)
-    k = camera.getFisheyeK()
-    f = camera.getScreenDistance()
+# find transperancy factor
+def findTransperancyFactor(base_point, ray_direction, distance, surfaces, materials):
+    intersect_t = np.inf
 
-    # Calculate theta
-    if k == 0:
-        theta = R / f
-    elif 0 < k <= 1:
-        theta = np.arctan(R * k / f)
-        theta = np.degrees(theta / k)
-    else:
-        theta = np.arcsin(R * k / f)
-        theta = np.degrees(theta / k)
+    # Look for intersection with surface
+    for surface in surfaces:
+        t = surface.findIntersection(base_point, ray_direction)
+        # Found closer intersection point?
+        if 0 < t < intersect_t:
+            intersect_t = 0
 
-    # Point enters through the pin hole?
-    if theta > 90:
-        return None
+    # Intersection not found?
+    if intersect_t == np.inf:
+        return 0
 
-    # Calculate ray direction of X_if point
-    X_if_direction = P - P_c
-    X_if_direction = X_if_direction / np.linalg.norm(X_if_direction)
+    return 1
 
-    # Calculate X_ip
-    X_ip = np.tan(np.radians(theta)) * camera.getScreenDistance()
 
-    # Find ray on image plane
-    X_ip = P_c + X_if_direction * X_ip
-    fish_eye_direction = X_ip - camera.getPosition()
-    fish_eye_direction = fish_eye_direction / np.linalg.norm(fish_eye_direction)
-    return fish_eye_direction
+def calculateReflectionDirection( I, N):
+    # Calculate the reflection direction using the light direction and surface normal
+    R = I - (2 * np.dot(I, N)) * N
+    R /= np.linalg.norm(R)
+    return R

@@ -1,25 +1,20 @@
-import numpy as np
-
-
 class Camera:
-    def __init__(self, position, lookTo, up, screen_distance, screen_width, use_fisheye, fisheye_k):
+    def __init__(self, position, look_at, up_vector, screen_distance, screen_width):
         self.position = position
-        self.lookTo = lookTo
-        self.up = up
+        self.look_at = look_at
+        self.up_vector = up_vector
         self.screen_distance = screen_distance
         self.screen_width = screen_width
-        self.use_fisheye = use_fisheye
-        self.fisheye_k = fisheye_k
 
-    # Get and set functions
+# Get and set functions
     def getPosition(self):
         return self.position
 
-    def getLookTo(self):
-        return self.lookTo
+    def getLookAt(self):
+        return self.look_at
 
     def getUp(self):
-        return self.up
+        return self.up_vector
 
     def getScreenDistance(self):
         return self.screen_distance
@@ -27,29 +22,17 @@ class Camera:
     def getScreenWidth(self):
         return self.screen_width
 
-    def getUseFisheye(self):
-        return self.use_fisheye
-
-    def getFisheyeK(self):
-        return self.fisheye_k
-
     def setPosition(self, position):
         self.position = position
 
-    def setLookTo(self,lookTo):
-        self.lookTo = lookTo
+    def setLookAt(self,look_at):
+        self.look_at = look_at
 
-    def setUp(self, up):
-        self.up = up
+    def setUp(self, up_vector):
+        self.up_vector = up_vector
 
     def setScreenDistance(self, screen_distance):
         self.screen_distance = screen_distance
 
     def setScreenWidth(self, screen_width):
         self.screen_width = screen_width
-
-    def setUseFisheye(self, use_fisheye):
-        self.use_fisheye = use_fisheye
-
-    def setFisheyeK(self, fisheye_k):
-        self.fisheye_k = fisheye_k

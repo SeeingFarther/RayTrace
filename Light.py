@@ -1,10 +1,10 @@
 class Light:
-    def __init__(self, position, color, specular_intensity, shadow_intensity, width_radius):
+    def __init__(self, position, color, specular_intensity, shadow_intensity, radius):
         self.position = position
         self.color = color
         self.specular_intensity = specular_intensity
         self.shadow_intensity = shadow_intensity
-        self.width_radius = width_radius
+        self.radius = radius
 
     # Get and set functions
     def getPosition(self):
@@ -19,8 +19,8 @@ class Light:
     def getShadowIntensity(self):
         return self.shadow_intensity
 
-    def getWidthRadius(self):
-        return self.width_radius
+    def getRadius(self):
+        return self.radius
 
     def setPosition(self, position):
         self.position = position
@@ -34,5 +34,5 @@ class Light:
     def setShadowIntensity(self, shadow_intensity):
         self.shadow_intensity = shadow_intensity
 
-    def setWidthRadius(self, width_radius):
-        self.width_radius = width_radius
+    def setRadius(self, radius):
+        self.radius = radius

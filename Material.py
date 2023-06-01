@@ -1,9 +1,9 @@
 class Material:
-    def __init__(self, diffuse_color, specular_color, reflection_color, phong_specularity, transparency):
+    def __init__(self, diffuse_color, specular_color, reflection_color, shininess, transparency):
         self.diffuse_color = diffuse_color
         self.specular_color = specular_color
         self.reflection_color = reflection_color
-        self.phong_specularity = phong_specularity
+        self.shininess = shininess
         self.transparency = transparency
 
     # Get and set functions
@@ -16,8 +16,8 @@ class Material:
     def getReflectionColor(self):
         return self.reflection_color
 
-    def getPhongSpecularity(self):
-        return self.phong_specularity
+    def getShininess(self):
+        return self.shininess
 
     def getTransparency(self):
         return self.transparency
@@ -31,8 +31,8 @@ class Material:
     def setReflectionColor(self, reflection_color):
         self.reflection_color = reflection_color
 
-    def setPhongSpecularity(self, phong_specularity):
-        self.phong_specularity = phong_specularity
+    def setShininess(self, shininess):
+        self.shininess = shininess
 
     def setTransparency(self, transparency):
         self.transparency = transparency
