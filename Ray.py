@@ -4,7 +4,7 @@ import numpy as np
 class Ray:
     def __init__(self, p, ray_direction, intersection_point, intersection_surface_material_index=None):
         self.p = p
-        self.ray_direction = ray_direction / np.linalg.norm(ray_direction)
+        self.ray_direction = ray_direction
         self.intersection_point = intersection_point
         self.intersection_surface_material_index = intersection_surface_material_index
 

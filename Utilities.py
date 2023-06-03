@@ -1,8 +1,5 @@
 import numpy as np
 import random
-from surfaces.cube import Cube
-from surfaces.infinite_plane import InfinitePlane
-from surfaces.sphere import Sphere
 from ray import *
 
 
@@ -14,6 +11,7 @@ def findPixelRays(camera, R_x, R_y):
 
     # View up vector
     V_up = camera.getUp()
+    V_up = V_up / np.linalg.norm(V_up)
 
     # Calculate view plane center point
     P_0 = camera.getPosition()
@@ -68,7 +66,7 @@ def findIntersection(base_point, ray_direction, surfaces):
 
     # Intersection not found?
     if intersect_t == np.inf:
-        return None, None
+        return np.inf, None
 
     return intersect_t, intersect_surface
 
@@ -91,8 +89,15 @@ def findTransperancyFactor(base_point, ray_direction, distance, surfaces, materi
     return 1
 
 
-def calculateReflectionDirection( I, N):
+def calculateReflectionDirection(I, N):
     # Calculate the reflection direction using the light direction and surface normal
     R = I - (2 * np.dot(I, N)) * N
     R /= np.linalg.norm(R)
     return R
+
+
+def normalize(V):
+    if np.all(V == 0):
+        return 0
+
+    return V / np.linalg.norm(V)

@@ -1,8 +1,10 @@
 import numpy as np
+from utilities import normalize
+
 
 class InfinitePlane:
     def __init__(self, normal, offset, material_index):
-        self.normal = normal
+        self.normal = normalize(normal)
         self.offset = -offset
         self.material_index = material_index
 
@@ -29,8 +31,8 @@ class InfinitePlane:
     def findIntersection(self, P_0, vector):
         div = np.dot(vector, self.normal)
         prod = np.dot(self.normal, P_0) + self.offset
-        if div == 0:
-            return np.inf * -prod
+        # if div == 0:
+        #     return np.inf * -prod
 
         t = -prod / div
         return t
