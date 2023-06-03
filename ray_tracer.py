@@ -14,7 +14,6 @@ from surfaces.sphere import Sphere
 from utilities import *
 
 
-
 def parse_scene_file(file_path):
     # Set the precision for decimal calculations
     surfaces = []
@@ -126,28 +125,29 @@ def parse_scene_file(file_path):
     return camera, scene_settings, surfaces, materials, lights
 
 
-def save_image(image_array):
+def save_image(output_image, image_array):
     # Save the uint8 image as a PNG file
     image = Image.fromarray(np.uint8(image_array))
-
+    print(output_image)
     # Save the image to a file
-    image.save("scenes/Pool100.png")
+    image.save(output_image)
+
 
 def main():
-    # parser = argparse.ArgumentParser(description='Python Ray Tracer')
-    # parser.add_argument('scene_file', type=str, help='Path to the scene file')
-    # parser.add_argument('output_image', type=str, help='Name of the output image file')
-    # parser.add_argument('--width', type=int, default=500, help='Image width')
-    # parser.add_argument('--height', type=int, default=500, help='Image height')
-    # args = parser.parse_args()
-    # Set the precision for decimal calculations
+    parser = argparse.ArgumentParser(description='Python Ray Tracer')
+    parser.add_argument('scene_file', type=str, help='Path to the scene file')
+    parser.add_argument('output_image', type=str, help='Name of the output image file')
+    parser.add_argument('--width', type=int, default=500, help='Image width')
+    parser.add_argument('--height', type=int, default=500, help='Image height')
+    args = parser.parse_args()
+
     # Start time
     start_time = time.time()
 
     # Parse the scene file
-    width = 500  # args.width
-    height = 500  # args.height
-    camera, scene_settings, surfaces, materials, lights = parse_scene_file('./scenes/pool.txt')  # args.scene_file)
+    width = args.width
+    height = args.height
+    camera, scene_settings, surfaces, materials, lights = parse_scene_file(args.scene_file)
 
     # Find pixels and the rays mapped to each pixel
     pixels, rays_directions = findPixelRays(camera, width, height)
@@ -157,83 +157,35 @@ def main():
     color_finder = ColorFinder(scene_settings, lights, surfaces, materials,
                                scene_settings.getBackgroundColor(), surfaces)
 
-    pixelSize = camera.getScreenWidth() / width
-
-    # Calc first pixel
-    aspectRatio = height / width
-
-    towardsVector = camera.getLookAt() - P_0
-    towardsVector = towardsVector / np.linalg.norm(towardsVector)
-    upVector = np.cross(towardsVector, camera.getUp())
-    upVector = upVector / np.linalg.norm(upVector)
-    rightVector = np.cross(towardsVector, upVector)
-    rightVector = rightVector / np.linalg.norm(rightVector)
-
-    delta_x = rightVector * pixelSize
-    delta_y = upVector * pixelSize
-
-    # Center = position + towards * distance
-
-    center = towardsVector * camera.getScreenDistance() + P_0
-    left = rightVector * -0.5 * camera.getScreenWidth()
-    top = upVector * 0.5 * aspectRatio * camera.getScreenWidth()
-    topLeft = left + top + center
-
-    firstPixel = topLeft + delta_y * -0.5
-    firstPixel = firstPixel + 0.5 * delta_x
-    x = np.load("test_array1.npy")
-    x = np.uint8(x)
-    num_ok = 0
-    num_error = 0
-    im = np.asarray(Image.open("scenes/Pool5.png"))
     for col in range(width):
         for row in range(height):
 
-            move = delta_y * -col + delta_x * row
-            currentPixel = firstPixel + move
-            direction = currentPixel - P_0
-            direction = normalize(direction)
             # Default color if no intersection
             color = np.zeros(3)
             color += scene_settings.getBackgroundColor()
-            #image_array[row, col, :] = (color[:] * 255.0)
 
-            # # Get direction
-            # direction = rays_directions[row, col]
-            #
+            # Get direction
+            direction = rays_directions[row, col]
+            direction = normalize(direction)
+
             # # Find intersection with each surfaces
             t, surface = findIntersection(P_0, direction, surfaces)
 
             if t != np.inf:
-                #image_array[row, col, :] = (materials[surface.getMaterial() - 1].getDiffuseColor() * 255)
+                # image_array[row, col, :] = (materials[surface.getMaterial() - 1].getDiffuseColor() * 255)
                 material_index = surface.getMaterial() - 1
                 ray = Ray(camera.getPosition(), direction,
                           camera.getPosition() + t * direction, material_index)
                 color = color_finder.calculateColor(ray, materials[material_index], surface,
                                                     scene_settings.getMaxRecursions())
-                image_array[row, col, :] = (color[:] * 255.0)
-            else:
-                image_array[row, col, :] = (color[:] * 255.0)
+
+            image_array[row, col, :] = (color[:] * 255.0)
 
             d = Image.fromarray(np.uint8(image_array))
             d = np.asarray(d)
 
-            if np.any(d[row, col, :]!= x[row, col, :]):
-                print(x[row, col, :])
-                print(d[row, col, :])
-                num_error+=1
-                print("num_error"+ str(num_error))
-            else:
-                num_ok+=1
-                print("ok" + str(num_ok))
-
-    #np.save("test_array1.npy", image_array)
-    # x = np.load("test_array1.npy")
-    # x= np.transpose(x, axes = (1,0,2))
-
-
     # Save the output image
-    save_image(image_array)
+    save_image(args.output_image, image_array)
 
     end_time = time.time() - start_time
     print("Total time " + str(end_time))

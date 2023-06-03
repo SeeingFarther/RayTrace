@@ -1,4 +1,5 @@
 from .infinite_plane import InfinitePlane
+from utilities import normalize
 import numpy as np
 
 
@@ -16,22 +17,9 @@ class Cube:
         max_y = position[1] + half_distance
         min_z = position[2] - half_distance
         max_z = position[2] + half_distance
-        self.max_vec = np.array([max_x, max_y, max_z])
-        self.min_vec = np.array([min_x, min_y, min_z])
         self.bounds_x = np.array([min_x, max_x])
         self.bounds_y = np.array([min_y, max_y])
         self.bounds_z = np.array([min_z, max_z])
-
-
-
-        # Initialize planes for slabs method
-        # self.planes = [
-        #     InfinitePlane(np.array([1, 0, 0]), -max_x, material_index)
-        #     , InfinitePlane(np.array([1, 0, 0]),-min_x, material_index)
-        #     , InfinitePlane(np.array([0, 1, 0]), -max_y, material_index)
-        #     , InfinitePlane(np.array([0, 1, 0]), -min_y, material_index)
-        #     , InfinitePlane(np.array([0, 0, 1]), -max_z, material_index)
-        #     , InfinitePlane(np.array([0, 0, 1]), -min_z, material_index)]
 
     # Get and set functions
     def getPosition(self):
@@ -55,34 +43,6 @@ class Cube:
     # Calculate using the slab method
     # https://www.cs.cornell.edu/courses/cs4620/2013fa/lectures/03raytracing1.pdf
     def findIntersection(self, P_0, V):
-        # t_entry = -np.inf
-        # t_exit = np.inf
-        #
-        # for i in range(0, len(self.planes), 2):
-        #     # Reverse planes? (depends on direction of ray)
-        #     index = int(np.floor(np.sqrt(i)))
-        #     entry_plane = self.planes[i + 1] if V[index] >= 0 else self.planes[i]
-        #     exit_plane = self.planes[i] if V[index] >= 0 else self.planes[i + 1]
-        #
-        #     # Find the intersection points
-        #     t_entry_plane = entry_plane.findIntersection(P_0, V)
-        #     t_exit_plane = exit_plane.findIntersection(P_0, V)
-        #
-        #     # Did we find min intersection points?
-        #     if t_entry_plane > t_entry:
-        #         t_entry = t_entry_plane
-        #     if t_exit_plane < t_exit:
-        #         t_exit = t_exit_plane
-        #
-        # # Valid intersections point?
-        # if t_entry == -np.inf or t_exit == np.inf:
-        #     return -1
-        #
-        # if t_entry > t_exit:
-        #     return -1
-        #
-        # return t_entry
-
         inverse_direction = 1 / V
         sign = [int(inverse_direction[0] < 0), int(inverse_direction[1] < 0), int(inverse_direction[2] < 0)]
 
@@ -111,22 +71,11 @@ class Cube:
 
         return tmin
 
-
-
     def getNormal(self, ray):
-        # t_entry = np.inf
-        # normal = np.array([0, 0, 0])
-        # p = ray.getP()
-        # ray_direction = ray.getDirection()
-        # for plane in self.planes:
-        #     t = plane.findIntersection(p, ray_direction)
-        #     if t_entry > t > 0:
-        #         t_entry = t
-        #         normal = plane.getNormal()
-        # return normal
         epsilon = 1e-6
         p = ray.getP() - self.position
-        half_size = np.array([self.bounds_x[1] - self.bounds_x[0], self.bounds_y[1] - self.bounds_y[0], self.bounds_z[1] - self.bounds_z[0]])
+        half_size = np.array([self.bounds_x[1] - self.bounds_x[0], self.bounds_y[1] - self.bounds_y[0],
+                              self.bounds_z[1] - self.bounds_z[0]])
         half_size = 0.5 * half_size
 
         # Calculate the sign of the vector from the center of the cube to the point.
@@ -140,5 +89,5 @@ class Cube:
 
         # Return the normal of the surface.
         normal = sign * step
-        return normal / np.linalg.norm(normal)
-
+        normal = normalize(normal)
+        return

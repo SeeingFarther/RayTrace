@@ -41,14 +41,7 @@ def findPixelRays(camera, R_x, R_y):
 
     # Calculate the subtraction of each vector in the matrix with P_0
     P_sub = P - P_0
-
-    # Calculate the norm of each vector
-    P_norm = np.linalg.norm(P_sub, axis=2)
-
-    # Calculate the normalized vector of the subtraction of each vector to P_0
-    P_normalized = P_sub / P_norm[:, :, np.newaxis]
-
-    return P, P_normalized
+    return P, P_sub
 
 
 # Tries to find minimum intersection point with one of the surfaces
@@ -73,26 +66,27 @@ def findIntersection(base_point, ray_direction, surfaces):
 
 # find transperancy factor
 def findTransperancyFactor(base_point, ray_direction, distance, surfaces, materials):
-    intersect_t = np.inf
+    intersect_t = 1.0
 
     # Look for intersection with surface
     for surface in surfaces:
         t = surface.findIntersection(base_point, ray_direction)
+
         # Found closer intersection point?
-        if 0 < t < intersect_t:
-            intersect_t = 0
+        if 0 < t < distance:
+            material = materials[surface.getMaterial() - 1]
+            intersect_t *= material.getTransparency()
 
-    # Intersection not found?
-    if intersect_t == np.inf:
-        return 0
-
-    return 1
+    return intersect_t
 
 
 def calculateReflectionDirection(I, N):
     # Calculate the reflection direction using the light direction and surface normal
-    R = I - (2 * np.dot(I, N)) * N
-    R /= np.linalg.norm(R)
+    # R is the reflection vector
+    # I is the incident vector
+    # N is the surface normal vector
+    R = I - (2 * N.dot(I)) * N
+    R = normalize(R)
     return R
 
 
