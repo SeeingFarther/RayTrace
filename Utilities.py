@@ -1,5 +1,4 @@
 import numpy as np
-import random
 from ray import *
 
 
@@ -64,20 +63,20 @@ def findIntersection(base_point, ray_direction, surfaces):
     return intersect_t, intersect_surface
 
 
-# find transperancy factor
-def findTransperancyFactor(base_point, ray_direction, distance, surfaces, materials):
-    intersect_t = 1.0
+# Find transparency factor
+def findTransparencyFactor(base_point, ray_direction, distance, surfaces, materials):
+    transparency_factor = 1.0
 
     # Look for intersection with surface
     for surface in surfaces:
         t = surface.findIntersection(base_point, ray_direction)
 
-        # Found closer intersection point?
+        # Found intersection point? Mul with the transparency factor
         if 0 < t < distance:
             material = materials[surface.getMaterial() - 1]
-            intersect_t *= material.getTransparency()
+            transparency_factor *= material.getTransparency()
 
-    return intersect_t
+    return transparency_factor
 
 
 def calculateReflectionDirection(I, N):

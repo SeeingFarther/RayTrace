@@ -64,6 +64,7 @@ class Cube:
 
         if tmin > tzmax or tzmin > tmax:
             return -1
+
         if tzmin > tmin:
             tmin = tzmin
         if tzmax < tmax:
@@ -90,4 +91,4 @@ class Cube:
         # Return the normal of the surface.
         normal = sign * step
         normal = normalize(normal)
-        return
+        return normal

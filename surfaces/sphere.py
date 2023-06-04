@@ -28,21 +28,32 @@ class Sphere:
 
     # Calculate intersection between the ray and the sphere using geometric method we learnt in the lecture
     def findIntersection(self, P_0, V):
+        # Calculate L and T_ca
         L = self.position - P_0
-        t_ca = np.dot(L, V)
-
-        if t_ca < 0:
+        T_ca = np.dot(L, V)
+        if T_ca < 0:
             return 0
 
-        dSquare = np.dot(L, L) - np.power(t_ca, 2)
-
-        if dSquare > np.power(self.radius, 2):
+        # Calculate d^2
+        d_squared = L.dot(L) - (T_ca * T_ca)
+        if d_squared > self.radius * self.radius:
             return 0
 
-        t_hc = np.sqrt(np.power(self.radius, 2) - dSquare)
-        t = min(t_ca - t_hc, t_ca + t_hc)
+        # Calculate T_hc
+        T_hc = np.sqrt(self.radius * self.radius - d_squared)
+        t1 = T_ca - T_hc
+        t2 = T_ca + T_hc
 
-        return t
+        # Checks for the closet positive from the two intersection points else return zero
+        if t1 <= 0 and t2 <= 0:
+            return 0
+
+        if t1 > t2:
+            t1, t2 = t2, t1
+
+        if t1 < 0:
+            t1 = t2
+        return t1
 
     # Gives the normal of point on the sphere
     def getNormal(self, ray):

@@ -11,6 +11,7 @@ from color_finder import ColorFinder
 from surfaces.cube import Cube
 from surfaces.infinite_plane import InfinitePlane
 from surfaces.sphere import Sphere
+from surfaces.triangle import Triangle
 from utilities import *
 
 
@@ -105,6 +106,18 @@ def parse_scene_file(file_path):
                 # Create box
                 cube = Cube(object_params['position'], object_params['scale'], object_params['material_index'])
                 surfaces.append(cube)
+            elif obj_type == "trg":
+                # Parse triangle parameters
+                object_params = {
+                    'p1': np.array([float(params[0]), float(params[1]), float(params[2])]),
+                    'p2':  np.array([float(params[3]), float(params[4]), float(params[5])]),
+                    'p3': np.array([float(params[6]), float(params[7]), float(params[8])]),
+                    'material_index': int(params[9])
+                }
+
+                # Create triangle
+                triangle = Triangle(object_params['p1'], object_params['p2'], object_params['p3'], object_params['material_index'])
+                surfaces.append(triangle)
             elif obj_type == "lgt":
                 # Parse light parameters
                 object_params = {
@@ -155,7 +168,7 @@ def main():
     image_array = np.zeros((width, height, 3))
     P_0 = camera.getPosition()
     color_finder = ColorFinder(scene_settings, lights, surfaces, materials,
-                               scene_settings.getBackgroundColor(), surfaces)
+                               scene_settings.getBackgroundColor())
 
     for col in range(width):
         for row in range(height):
@@ -185,6 +198,7 @@ def main():
             d = np.asarray(d)
 
     # Save the output image
+    # np.save("test_array6.npy", d)
     save_image(args.output_image, image_array)
 
     end_time = time.time() - start_time

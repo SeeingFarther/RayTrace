@@ -1,6 +1,6 @@
 import numpy as np
 from .infinite_plane import InfinitePlane
-
+from utilities import normalize
 
 class Triangle:
     def __init__(self, T1, T2, T3, material_index):
@@ -13,11 +13,11 @@ class Triangle:
         v = T2 - T1
         u = T3 - T1
         self.normal = np.cross(v, u)
-        self.normal = self.normal / np.linalg.norm(self.normal)
+        self.normal = normalize(self.normal)
 
         # Finds offset
         offset = np.dot(T1, self.normal)
-        self.triangle_plane = InfinitePlane(self.normal, -offset, material_index)
+        self.triangle_plane = InfinitePlane(self.normal, offset, material_index)
 
     # Get and set functions
     def getT1(self):
@@ -51,7 +51,7 @@ class Triangle:
     def checkInside(self, V1, V2, P_0, P):
         # Finds normal
         N = np.cross(V1, V2)
-        N = N / np.linalg.norm(N)
+        N = normalize(N)
 
         # Finds offset
         offset = -np.dot(N, P_0)
