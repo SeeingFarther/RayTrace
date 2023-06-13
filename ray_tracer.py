@@ -11,7 +11,6 @@ from color_finder import ColorFinder
 from surfaces.cube import Cube
 from surfaces.infinite_plane import InfinitePlane
 from surfaces.sphere import Sphere
-from surfaces.triangle import Triangle
 from utilities import *
 
 
@@ -106,18 +105,6 @@ def parse_scene_file(file_path):
                 # Create box
                 cube = Cube(object_params['position'], object_params['scale'], object_params['material_index'])
                 surfaces.append(cube)
-            elif obj_type == "trg":
-                # Parse triangle parameters
-                object_params = {
-                    'p1': np.array([float(params[0]), float(params[1]), float(params[2])]),
-                    'p2':  np.array([float(params[3]), float(params[4]), float(params[5])]),
-                    'p3': np.array([float(params[6]), float(params[7]), float(params[8])]),
-                    'material_index': int(params[9])
-                }
-
-                # Create triangle
-                triangle = Triangle(object_params['p1'], object_params['p2'], object_params['p3'], object_params['material_index'])
-                surfaces.append(triangle)
             elif obj_type == "lgt":
                 # Parse light parameters
                 object_params = {
@@ -141,7 +128,7 @@ def parse_scene_file(file_path):
 def save_image(output_image, image_array):
     # Save the uint8 image as a PNG file
     image = Image.fromarray(np.uint8(image_array))
-    print(output_image)
+
     # Save the image to a file
     image.save(output_image)
 
@@ -152,7 +139,11 @@ def main():
     parser.add_argument('output_image', type=str, help='Name of the output image file')
     parser.add_argument('--width', type=int, default=500, help='Image width')
     parser.add_argument('--height', type=int, default=500, help='Image height')
+    parser.add_argument('-t', action='store_true', default=False, help='Consider transparency of objects in soft '
+                                                                       'shadow process')
     args = parser.parse_args()
+
+    print("Ray tracer starts running")
 
     # Start time
     start_time = time.time()
@@ -167,8 +158,13 @@ def main():
 
     image_array = np.zeros((width, height, 3))
     P_0 = camera.getPosition()
+
+    softshadow_func = hasIntersection
+    if args.t:
+        softshadow_func = findTransparencyFactor
+
     color_finder = ColorFinder(scene_settings, lights, surfaces, materials,
-                               scene_settings.getBackgroundColor())
+                               scene_settings.getBackgroundColor(), softshadow_func)
 
     for col in range(width):
         for row in range(height):
@@ -184,25 +180,23 @@ def main():
             # # Find intersection with each surfaces
             t, surface = findIntersection(P_0, direction, surfaces)
 
+            # Their is intersection? calculate color
             if t != np.inf:
-                # image_array[row, col, :] = (materials[surface.getMaterial() - 1].getDiffuseColor() * 255)
                 material_index = surface.getMaterial() - 1
                 ray = Ray(camera.getPosition(), direction,
-                          camera.getPosition() + t * direction, material_index)
+                          camera.getPosition() + t * direction)
                 color = color_finder.calculateColor(ray, materials[material_index], surface,
                                                     scene_settings.getMaxRecursions())
 
             image_array[row, col, :] = (color[:] * 255.0)
 
-            d = Image.fromarray(np.uint8(image_array))
-            d = np.asarray(d)
-
     # Save the output image
-    # np.save("test_array6.npy", d)
     save_image(args.output_image, image_array)
 
-    end_time = time.time() - start_time
-    print("Total time " + str(end_time))
+    # Display time it Took
+    end_time = (time.time() - start_time) / 60.0
+    minutes = "{:.2f}".format(end_time)
+    print("Finished, total time in minutes: " + str(minutes))
 
 
 if __name__ == '__main__':

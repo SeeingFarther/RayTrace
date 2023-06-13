@@ -29,12 +29,9 @@ class InfinitePlane:
 
     # Calculate intersection between the ray and the plane using algebraic method
     def findIntersection(self, P_0, vector):
-        div = np.dot(vector, self.normal)
-        prod = np.dot(self.normal, P_0) + self.offset
-        # if div == 0:
-        #     return np.inf * -prod
-
-        t = -prod / div
+        div = vector.dot(self.normal)
+        prod = P_0.dot(self.normal) + self.offset
+        t = -(prod / div)
         return t
 
     # Get and set functions

@@ -79,6 +79,22 @@ def findTransparencyFactor(base_point, ray_direction, distance, surfaces, materi
     return transparency_factor
 
 
+# Has intersection
+def hasIntersection(base_point, ray_direction, distance, surfaces, materials):
+    no_intersection_flag = 1.0
+
+    # Look for intersection with surface
+    for surface in surfaces:
+        t = surface.findIntersection(base_point, ray_direction)
+
+        # Found intersection point? Mul with the transparency factor
+        if 0 < t < distance:
+            no_intersection_flag = 0.0
+            break
+
+    return no_intersection_flag
+
+
 def calculateReflectionDirection(I, N):
     # Calculate the reflection direction using the light direction and surface normal
     # R is the reflection vector
@@ -89,6 +105,7 @@ def calculateReflectionDirection(I, N):
     return R
 
 
+# Safe normalize
 def normalize(V):
     if np.all(V == 0):
         return 0

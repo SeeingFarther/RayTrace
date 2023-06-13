@@ -1,6 +1,7 @@
 import numpy as np
 from utilities import normalize
 
+
 class Sphere:
     def __init__(self, position, radius, material_index):
         self.position = position

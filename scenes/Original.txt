@@ -1,0 +1,47 @@
+# Camera: 	px   	py   	pz   	lx  	ly  	lz 	    ux  	uy  	uz 	sc_dist	sc_width
+cam 	  	-8   	12	    -20 	0   	0   	-4  	0   	1   	0  	1.2	     1
+
+# Settings: 	bgr  	bgg  	bgb	    sh_rays	rec_max 
+set 		    1  	     1  	1   	8 	     10
+
+# Sphere materials
+# Material:	dr    	dg    	db	    sr   	sg   	sb 	   rr   	rg  	rb	   phong 	trans
+mtl		    0.95	0.07	0.07	1	    1	   1	   0.2   	0.1	    0.1	   30	     0
+mtl		    0.95	0.5	    0.07	1	    1	   1	   0.2	    0.1	    0.2	   30	     0
+mtl		    0.95	0.95	0.07	1	    1	   1	   0.2	    0.2	    0.1	   30	     0
+
+
+# Box materials
+# Material:	dr    	dg    	db	    sr   	sg   	sb 	   rr   	rg  	rb	   phong 	trans
+mtl		    0.07	0.07	0.65	1        1	     1	   0.1     0.1     0.2      30	     0
+mtl		    0.34	0.95	0.34	1        1	     1	   0.1     0.2     0.1      30	     0.05
+mtl		    0.07	0.90	0.90	1        1	     1	   0.1     0.2     0.2      40	     0
+mtl		    0.85	0.85	0.07	1        1	     1     0.2     0.2    0.1       30	     0
+
+# Planes materials
+# Material:	dr    	dg    	db	    sr   	sg   	sb 	   rr   	rg  	rb	   phong 	trans
+mtl		    0.8	    0.8	    0.8 	0.8	    0.8	   0.8	   0	    0	    0	   10	     0
+mtl		    0	    0	    0	    1	    1	   1	   0.9	    0.9	    0.9	   100	     0
+
+# Plane:	nx	ny	nz	offset	mat_idx
+pln		    0.26	1	0   -5	    8
+pln		    0	0.07	1	4.7	    9
+
+# Spheres:	cx   	cy   	cz  	radius 	mat_idx
+sph		    -1	    2	    -3	    0.9	     1
+sph		    -1	    0	    -5	    0.9	     2
+sph		     1	    2	    -5	    0.9	     3
+
+# Cubes:	cx   	cy   	cz  	edge 	mat_idx
+box		     1	     2	    -3	    1.5	     4
+box		    -1	     2	    -5	    1.5	     5
+box		    -1	     0	    -3	    1.5	     6
+box		     1	     0	    -5	    1.5	     4
+box		     1	     0	    -3	    1.5	     7
+
+# Lights:	px	   py	  pz	r	   g	   b	  spec	shadow	width
+lgt		    0	   0	   1	0.3	    0.3	    0.3    0.3 	  0	      2
+lgt		   -3	   13	  -5	0.35	0.35	0.35   1	0.4	      0.3
+lgt		   17	   0	   1	0.5	    0.5	    0.5	   0.5     0	  2
+lgt		   9	   13	  -5	0.35	0.35	0.35   1	0.4	      0.3
+

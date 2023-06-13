@@ -7,17 +7,17 @@ from ray import Ray
 from surfaces.cube import Cube
 from surfaces.infinite_plane import InfinitePlane
 from surfaces.sphere import Sphere
-from surfaces.triangle import Triangle
 from utilities import *
 
 
 class ColorFinder:
-    def __init__(self, scene_settings, lights, surfaces, materials, background_color):
+    def __init__(self, scene_settings, lights, surfaces, materials, background_color, softshadow_func):
         self.scene_settings = scene_settings
         self.lights = lights
         self.surfaces = surfaces
         self.materials = materials
         self.background_color = background_color
+        self.softshadow_func = softshadow_func
 
         # Prevents black spots
         self.black_spots_factor = 0.0002
@@ -57,7 +57,7 @@ class ColorFinder:
     def setBackgroundColor(self, background_color):
         self.background_color = background_color
 
-    def calculateRaysPrecentage(self, ray, light, N, surface):
+    def calculateRaysPrecentage(self, ray, light, N):
         # Find plane
         # N · P + d = 0 => d = - N · P
         N = normalize(N)
@@ -66,28 +66,33 @@ class ColorFinder:
 
         # Find where point with coordinates x = 1, y = 1 on plane using z =  - (Ax + By + D) / C
         z = -(N[0] + N[1] + distance) / N[2]
-        v = np.array([1, 1, z])
-        v = v - light_position
+        diagonal_vector = np.array([1, 1, z])
+        diagonal_vector = diagonal_vector - light_position
 
-        # Normalize v
-        v = normalize(v)
+        # Normalize diagonal vector
+        diagonal_vector = normalize(diagonal_vector)
 
-        # Finds perpendicular vector to v
-        u = np.cross(v, N)
+        # Finds perpendicular vector to diagonal vector
+        up_vector = np.cross(diagonal_vector, N)
 
-        # Normalize u
-        u = normalize(u)
+        # Normalize up_vector
+        up_vector = normalize(up_vector)
 
         # Finds the left up point of the rectangle
         light_radius = light.getRadius()
-        left_up_point = light_position + (u * (-0.5 * light_radius)) + (v * (-0.5 * light_radius))
+
+        # Move up
+        left_up_point = light_position + (up_vector * (-0.5 * light_radius))
+
+        # Move left
+        left_up_point += (diagonal_vector * (-0.5 * light_radius))
 
         # Define a rectangle on that plane, centered at the light source and as wide as the
         # defined light radius. Divide the rectangle into a grid of N*N cells, where N is the number of shadow rays
         shadow_rays = self.scene_settings.getShadowRays()
         cell_proportion = 1.0 / shadow_rays
-        rectangle_height = v * light_radius
-        rectangle_width = u * light_radius
+        rectangle_height = diagonal_vector * light_radius
+        rectangle_width = up_vector * light_radius
         cell_height = cell_proportion * rectangle_height
         cell_width = cell_proportion * rectangle_width
 
@@ -113,7 +118,7 @@ class ColorFinder:
                 p = point_on_surface + self.black_spots_factor * ray_direction
 
                 # Create ray if intersect with surface to know if no light arrives
-                transparency_factor = findTransparencyFactor(p, ray_direction, distance, self.surfaces, self.materials)
+                transparency_factor = self.softshadow_func(p, ray_direction, distance, self.surfaces, self.materials)
 
                 num_of_rays += (1.0 * transparency_factor)
 
@@ -134,7 +139,7 @@ class ColorFinder:
         # Have intersection with surface? continue recursively
         if t != np.inf:
             material_index = surface.getMaterial() - 1
-            transparency_ray = Ray(p, ray_direction, p + t * ray_direction, material_index)
+            transparency_ray = Ray(p, ray_direction, p + t * ray_direction)
             color = self.calculateColor(transparency_ray, self.materials[material_index], surface, max_recursion - 1)
 
         # Prevent overflow which can happen because of the recursion
@@ -155,7 +160,7 @@ class ColorFinder:
         # Have intersection with surface? continue recursively
         if t != np.inf:
             material_index = surface.getMaterial() - 1
-            reflectance_ray = Ray(p, R, p + t * R, material_index)
+            reflectance_ray = Ray(p, R, p + t * R)
             color = self.calculateColor(reflectance_ray, self.materials[material_index], surface, max_recursion - 1)
 
         color = color * material.getReflectionColor()
@@ -170,7 +175,7 @@ class ColorFinder:
         R = (N * (2 * N.dot(L))) - L
 
         # Calculate specular part
-        specular = np.dot(R, -ray_direction)
+        specular = R.dot(-ray_direction)
         specular = np.power(specular, material.getShininess())
         specular = specular * material.getSpecularColor() * light.getSpecularIntensity() * light.getColor()
         return specular
@@ -194,7 +199,7 @@ class ColorFinder:
             diffuse_and_specular_color += self.calculateSpecularColor(light, material, N, L, ray_direction)
 
             # Calculate diffuse and specular color
-            percentage_of_rays = self.calculateRaysPrecentage(ray, light, -L, surface)
+            percentage_of_rays = self.calculateRaysPrecentage(ray, light, -L)
             color += diffuse_and_specular_color * (
                     (1 - light.getShadowIntensity()) + (percentage_of_rays * light.getShadowIntensity()))
 
