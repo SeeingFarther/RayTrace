@@ -156,7 +156,7 @@ def main():
     # Find pixels and the rays mapped to each pixel
     pixels, rays_directions = findPixelRays(camera, width, height)
 
-    image_array = np.zeros((width, height, 3))
+    image_array = np.zeros((height, width, 3))
     P_0 = camera.getPosition()
 
     softshadow_func = hasIntersection

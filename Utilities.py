@@ -31,12 +31,12 @@ def findPixelRays(camera, R_x, R_y):
     r_y = screen_height / R_y
 
     # Find each screen pixel coordinates
-    i_matrix = np.tile(np.arange(R_x), (R_y, 1)).T
-    j_matrix = np.tile(np.arange(R_y), (R_x, 1))
+    i_matrix = np.tile(np.arange(R_y), (R_x, 1)).T
+    j_matrix = np.tile(np.arange(R_x), (R_y, 1))
     x = r_x * (j_matrix - np.floor(R_x / 2))
     y = r_y * (i_matrix - np.floor(R_y / 2))
     P = P_c - (x.reshape(-1, 1) * V_right) - (y.reshape(-1, 1) * plane_V_up)
-    P = P.reshape(R_x, R_y, 3)
+    P = P.reshape(R_y, R_x, 3)
 
     # Calculate the subtraction of each vector in the matrix with P_0
     P_sub = P - P_0

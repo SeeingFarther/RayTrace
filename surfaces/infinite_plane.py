@@ -31,7 +31,8 @@ class InfinitePlane:
     def findIntersection(self, P_0, vector):
         div = vector.dot(self.normal)
         prod = P_0.dot(self.normal) + self.offset
-        t = -(prod / div)
+        with np.errstate(divide='ignore'):
+            t = -(prod / div)
         return t
 
     # Get and set functions
